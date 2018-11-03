@@ -62,6 +62,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="PCRDevice.cs" />
     <Compile Include="PCRSchedule.cs" />
     <Compile Include="ScheduleSerializer.cs" />
     <Compile Include="ScheduleStep.cs" />

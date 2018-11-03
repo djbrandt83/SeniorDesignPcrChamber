@@ -14,6 +14,8 @@ namespace EE595PcrController
         private RelayCommand _savePcrScheduleAs;
         private RelayCommand _loadPcrSchedule;
 
+        public PCRDevice Device;
+
         public PCRControllerVM()
         {
             Schedule = new PCRSchedule();
@@ -22,6 +24,8 @@ namespace EE595PcrController
             _savePcrSchedule = new RelayCommand( param => Serializer.SaveSchedule(Schedule) );
             _savePcrScheduleAs = new RelayCommand( param => Serializer.SaveScheduleAs(Schedule) );
             _loadPcrSchedule = new RelayCommand( param => Serializer.LoadSchedule() );
+
+            Device = new PCRDevice();
         }
 
         private void Serializer_OnNewScheduleLoaded(object sender, EventArgs e)
@@ -48,7 +52,39 @@ namespace EE595PcrController
             }
         }
 
-        #region Binding Properties
+        #region Device Connection Binding Properties
+        public String ConnectButtonMessage
+        {
+            get
+            {
+                if (Device.DeviceOnline)
+                {
+                    return "Disconnect";
+                }
+                else
+                {
+                    return "Connect";
+                }
+            }
+        }
+
+        public String ConnectionStatus
+        {
+            get
+            {
+                if (Device.DeviceOnline)
+                {
+                    return "Device connected";
+                }
+                else
+                {
+                    return "Device Offline";
+                }
+            }
+        }
+        #endregion
+
+        #region Schedule Binding Properties
         public Int32 InitializationTemp
         {
             get { return Schedule.Initialization.Temperature; }
