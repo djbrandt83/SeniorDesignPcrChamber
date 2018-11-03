@@ -10,14 +10,15 @@
 	<Grid>
         <DockPanel>
             <Menu DockPanel.Dock="Top" >
-                <MenuItem Header="File" FlowDirection="RightToLeft">
-                    <MenuItem Header="_LoadExperiment"/>
-                    <MenuItem Header="_SaveExperiment"/>
-                    <MenuItem Header="E_xit"/>
+                <MenuItem Header="File" FlowDirection="RightToLeft" IsEnabled="{Binding ElementName=ScheduleTab, Path=IsSelected}">
+                    <MenuItem Header="Load Experiment" Command="{Binding LoadPcrSchedule}"/>
+                    <MenuItem Header="Save Experiment" Command="{Binding SavePcrSchedule}"/>
+                    <MenuItem Header="Save Experiment As" Command="{Binding SavePcrScheduleAs}"/>
+                    <MenuItem Header="Exit"/>
                 </MenuItem>
             </Menu>
             <TabControl>
-                <TabItem Header="Schedule Setup">
+                <TabItem x:Name="ScheduleTab" Header="Schedule Setup">
                     <DockPanel>
                         <StackPanel Orientation="Vertical" DockPanel.Dock="Top">
                             <Border CornerRadius="6" BorderBrush="Gray" BorderThickness="2">

@@ -9,11 +9,43 @@ namespace EE595PcrController
     class PCRControllerVM : INotifyPropertyChanged
     {
         public PCRSchedule Schedule;
-        private RelayCommand _addScheduleStep;
+        public ScheduleSerializer Serializer;
+        private RelayCommand _savePcrSchedule;
+        private RelayCommand _savePcrScheduleAs;
+        private RelayCommand _loadPcrSchedule;
 
         public PCRControllerVM()
         {
             Schedule = new PCRSchedule();
+            Serializer = new ScheduleSerializer();
+            Serializer.OnNewScheduleLoaded += Serializer_OnNewScheduleLoaded;
+            _savePcrSchedule = new RelayCommand( param => Serializer.SaveSchedule(Schedule) );
+            _savePcrScheduleAs = new RelayCommand( param => Serializer.SaveScheduleAs(Schedule) );
+            _loadPcrSchedule = new RelayCommand( param => Serializer.LoadSchedule() );
+        }
+
+        private void Serializer_OnNewScheduleLoaded(object sender, EventArgs e)
+        {
+            if(sender is ScheduleSerializer)
+            {
+                Serializer = (ScheduleSerializer)sender;
+                PCRSchedule schedule = Serializer.LoadedSchedule;
+                InitializationTemp = schedule.Initialization.Temperature;
+                InitializationDuration = schedule.Initialization.Duration;
+                DenaturationTemp = schedule.Denaturation.Temperature;
+                DenaturationDuration = schedule.Denaturation.Duration;
+                AnnealingTemp = schedule.Annealing.Temperature;
+                AnnealingDuration = schedule.Annealing.Duration;
+                ElongationTemp = schedule.Elongation.Temperature;
+                ElongationDuration = schedule.Elongation.Duration;
+                FinalHoldTemp = schedule.FinalHold.Temperature;
+                FinalHoldDuration = schedule.FinalHold.Duration;
+                PcrIterations = schedule.NumberOfIterations;
+            }
+            else
+            {
+                throw new Exception();
+            }
         }
 
         #region Binding Properties
@@ -162,9 +194,19 @@ namespace EE595PcrController
         #endregion
 
         #region Commands
-        public ICommand AddScheduleStep
+        public ICommand SavePcrSchedule
         {
-            get { return _addScheduleStep; }
+            get { return _savePcrSchedule; }
+        }
+
+        public ICommand SavePcrScheduleAs
+        {
+            get { return _savePcrScheduleAs; }
+        }
+
+        public ICommand LoadPcrSchedule
+        {
+            get { return _loadPcrSchedule; }
         }
         #endregion
 
