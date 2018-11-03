@@ -106,6 +106,18 @@
                         </StackPanel>
                     </DockPanel>
                 </TabItem>
+                <TabItem Header="Device Setup">
+                    <DockPanel>
+                        <StackPanel Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="COM Port" Margin="5,5,0,5"/>
+                                <ComboBox ItemsSource="{Binding ComPortList}" SelectedItem="{Binding SelectedDevice}" IsEditable="True" Margin="5,5,0,5" MinWidth="200"/>
+                            </StackPanel>
+                            <Button Content="{Binding ConnectButtonMessage}" IsEnabled="{Binding DeviceAvailable}" HorizontalAlignment="Center" Margin="5,5,0,5"/>
+                            <TextBlock Text="{Binding ConnectionStatus}"/>
+                        </StackPanel>
+                    </DockPanel>
+                </TabItem>
                 <TabItem Header="PCR Experiment">
 
                 </TabItem>
