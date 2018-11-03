@@ -13,24 +13,28 @@ namespace EE595PcrController
         private RelayCommand _savePcrSchedule;
         private RelayCommand _savePcrScheduleAs;
         private RelayCommand _loadPcrSchedule;
+        private RelayCommand _startStopExperiment;
 
         public PCRDevice Device;
+        public ExperimentStatus Experiment;
 
         public PCRControllerVM()
         {
             Schedule = new PCRSchedule();
             Serializer = new ScheduleSerializer();
             Serializer.OnNewScheduleLoaded += Serializer_OnNewScheduleLoaded;
-            _savePcrSchedule = new RelayCommand( param => Serializer.SaveSchedule(Schedule) );
-            _savePcrScheduleAs = new RelayCommand( param => Serializer.SaveScheduleAs(Schedule) );
-            _loadPcrSchedule = new RelayCommand( param => Serializer.LoadSchedule() );
+            _savePcrSchedule = new RelayCommand(param => Serializer.SaveSchedule(Schedule));
+            _savePcrScheduleAs = new RelayCommand(param => Serializer.SaveScheduleAs(Schedule));
+            _loadPcrSchedule = new RelayCommand(param => Serializer.LoadSchedule());
+            _startStopExperiment = new RelayCommand(param => Device.StartStopExperiment(Experiment.ExperimentRunning));
 
             Device = new PCRDevice();
+            Experiment = new ExperimentStatus();
         }
 
         private void Serializer_OnNewScheduleLoaded(object sender, EventArgs e)
         {
-            if(sender is ScheduleSerializer)
+            if (sender is ScheduleSerializer)
             {
                 Serializer = (ScheduleSerializer)sender;
                 PCRSchedule schedule = Serializer.LoadedSchedule;
@@ -51,6 +55,69 @@ namespace EE595PcrController
                 throw new Exception();
             }
         }
+
+        #region Experiment Status Binding Properties
+        public String CurrentStepName
+        {
+            get { return Experiment.CurrentStep; }
+            set
+            {
+                if (value != Experiment.CurrentStep)
+                {
+                    Experiment.CurrentStep = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public Int32 CyclesCompleted
+        {
+            get { return Experiment.CyclesCompleted; }
+            set
+            {
+                if (value != Experiment.CyclesCompleted)
+                {
+                    Experiment.CyclesCompleted = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public Int32 CyclesRemaining
+        {
+            get { return Experiment.CyclesRemaining; }
+            set
+            {
+                if (value != Experiment.CyclesRemaining)
+                {
+                    Experiment.CyclesRemaining = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public Int32 ExperimentMinutes => Experiment.PCRMinutes;
+
+        public Int32 ExperimentSeconds => Experiment.PCRSeconds;
+
+        public Int32 CurrentTemperature => Device.OutputTemperature;
+
+        public Int32 TargetTemperature => Device.ReferenceTemperature;
+
+        public String StartStopMessage => GetStartStopMessage();
+
+        public string GetStartStopMessage()
+        {
+            if (Experiment.ExperimentRunning)
+            {
+                return "Stop PCR Experiment";
+            }
+            else
+            {
+                return "Start PCR Experiment";
+            }
+        }
+        #endregion
 
         #region Device Connection Binding Properties
         public String ConnectButtonMessage

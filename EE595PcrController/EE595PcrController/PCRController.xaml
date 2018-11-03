@@ -4,11 +4,21 @@
 		xmlns:local="clr-namespace:EE595PcrController"
 		SizeToContent="WidthAndHeight"
 		Title="EE 595 PCR Controller App">
-	<Window.DataContext>
-		<local:PCRControllerVM/>
-	</Window.DataContext>
-	<Grid>
-        <DockPanel>
+    <Window.DataContext>
+        <local:PCRControllerVM/>
+    </Window.DataContext>
+    <Window.Effect>
+        <DropShadowEffect/>
+    </Window.Effect>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="31*"/>
+            <ColumnDefinition Width="24*"/>
+        </Grid.ColumnDefinitions>
+        <DockPanel Grid.ColumnSpan="2">
+            <DockPanel.Effect>
+                <DropShadowEffect/>
+            </DockPanel.Effect>
             <Menu DockPanel.Dock="Top" >
                 <MenuItem Header="File" FlowDirection="RightToLeft" IsEnabled="{Binding ElementName=ScheduleTab, Path=IsSelected}">
                     <MenuItem Header="Load Experiment" Command="{Binding LoadPcrSchedule}"/>
@@ -18,6 +28,9 @@
                 </MenuItem>
             </Menu>
             <TabControl>
+                <TabControl.Effect>
+                    <DropShadowEffect/>
+                </TabControl.Effect>
                 <TabItem x:Name="ScheduleTab" Header="Schedule Setup">
                     <DockPanel>
                         <StackPanel Orientation="Vertical" DockPanel.Dock="Top">
@@ -111,15 +124,84 @@
                         <StackPanel Orientation="Vertical">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="COM Port" Margin="5,5,0,5"/>
-                                <ComboBox ItemsSource="{Binding ComPortList}" SelectedItem="{Binding SelectedDevice}" IsEditable="True" Margin="5,5,0,5" MinWidth="200"/>
+                                <ComboBox ItemsSource="{Binding ComPortList}" SelectedItem="{Binding SelectedDevice}" IsEditable="True" Margin="5,5,0,5" MinWidth="200">
+                                    <ComboBox.Effect>
+                                        <DropShadowEffect/>
+                                    </ComboBox.Effect>
+                                </ComboBox>
                             </StackPanel>
-                            <Button Content="{Binding ConnectButtonMessage}" IsEnabled="{Binding DeviceAvailable}" HorizontalAlignment="Center" Margin="5,5,0,5"/>
+                            <Button Content="{Binding ConnectButtonMessage}" IsEnabled="{Binding DeviceAvailable}" HorizontalAlignment="Center" Margin="5,5,0,5">
+                                <Button.Effect>
+                                    <DropShadowEffect/>
+                                </Button.Effect>
+                            </Button>
                             <TextBlock Text="{Binding ConnectionStatus}"/>
                         </StackPanel>
                     </DockPanel>
                 </TabItem>
                 <TabItem Header="PCR Experiment">
-
+                    <DockPanel>
+                        <DockPanel DockPanel.Dock="Top">
+                            <TextBlock Text="Current Step: " DockPanel.Dock="Left" Margin="10,10,0,0"/>
+                            <Border CornerRadius="4" BorderBrush="Gray" BorderThickness="2" Height="20" Width="100" Margin="0,10,10,0" HorizontalAlignment="Right">
+                                <TextBlock Text="{Binding CurrentStepName, UpdateSourceTrigger=PropertyChanged, FallbackValue=Initialization}"
+                                            Margin="5,0,0,0" VerticalAlignment="Center" TextAlignment="Center" DockPanel.Dock="Right"/>
+                            </Border>
+                        </DockPanel>
+                        <DockPanel DockPanel.Dock="Top">
+                            <TextBlock Text="Completed Cycles: " Margin="10,10,0,0"/>
+                            <Border CornerRadius="4" BorderBrush="Gray" BorderThickness="2" Height="20" Width="30" Margin="0,10,10,0" HorizontalAlignment="Right">
+                                <TextBlock Text="{Binding CyclesCompleted, UpdateSourceTrigger=PropertyChanged, FallbackValue=0}"
+                                               TextAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </DockPanel>
+                        <DockPanel DockPanel.Dock="Top">
+                            <TextBlock Text="Cycles Remaining: " Margin="10,10,0,0"/>
+                            <Border CornerRadius="4" BorderBrush="Gray" BorderThickness="2" Height="20" Width="30" Margin="0,10,10,0" HorizontalAlignment="Right">
+                                <TextBlock Text="{Binding CyclesRemaining, UpdateSourceTrigger=PropertyChanged, FallbackValue=0}"
+                                               TextAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </DockPanel>
+                        <DockPanel DockPanel.Dock="Top">
+                            <TextBlock Text="Time Elapsed: " Margin="10,10,0,0" DockPanel.Dock="Left"/>
+                            <TextBlock Text="sec" Margin="0,10,2,0" DockPanel.Dock="Right"/>
+                            <Border CornerRadius="4" BorderBrush="Gray" BorderThickness="2" Height="20" Width="30" Margin="0,10,2,0" HorizontalAlignment="Right"
+                                    DockPanel.Dock="Right">
+                                <TextBlock Text="{Binding ExperimentSeconds, UpdateSourceTrigger=PropertyChanged, FallbackValue=0}"
+                                               TextAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="min" Margin="0,10,2,0" DockPanel.Dock="Right"/>
+                            <Border CornerRadius="4" BorderBrush="Gray" BorderThickness="2" Height="20" Width="30" Margin="0,10,2,0" HorizontalAlignment="Right"
+                                    DockPanel.Dock="Right">
+                                <TextBlock Text="{Binding ExperimentMinutes, UpdateSourceTrigger=PropertyChanged, FallbackValue=0}"
+                                               TextAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </DockPanel>
+                        <DockPanel DockPanel.Dock="Top">
+                            <TextBlock Text="Current Temperature: " Margin="10,10,0,0" DockPanel.Dock="Left"/>
+                            <TextBlock Text="degC" Margin="2,10,2,0" DockPanel.Dock="Right"/>
+                            <Border CornerRadius="4" BorderBrush="Gray" BorderThickness="2" Height="20" Width="30" Margin="0,10,2,0" HorizontalAlignment="Right">
+                                <TextBlock Text="{Binding CurrentTemperature, UpdateSourceTrigger=PropertyChanged, FallbackValue=0}"
+                                               TextAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </DockPanel>
+                        <DockPanel DockPanel.Dock="Top">
+                            <TextBlock Text="Target Temperature: " Margin="10,10,0,0" DockPanel.Dock="Left"/>
+                            <TextBlock Text="degC" Margin="2,10,2,0" DockPanel.Dock="Right"/>
+                            <Border CornerRadius="4" BorderBrush="Gray" BorderThickness="2" Height="20" Width="30" Margin="0,10,2,0" HorizontalAlignment="Right">
+                                <TextBlock Text="{Binding TargetTemperature, UpdateSourceTrigger=PropertyChanged, FallbackValue=0}"
+                                               TextAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </DockPanel>
+                        <DockPanel DockPanel.Dock="Bottom">
+                            <DockPanel.Effect>
+                                <DropShadowEffect/>
+                            </DockPanel.Effect>
+                            <Button Command="{Binding StartStopExperiment}" Margin="10,10,10,10">
+                                <TextBlock Text="{Binding StartStopMessage , UpdateSourceTrigger=PropertyChanged}"/>
+                            </Button>
+                        </DockPanel>
+                    </DockPanel>
                 </TabItem>
             </TabControl>
         </DockPanel>
