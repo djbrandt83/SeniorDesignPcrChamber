@@ -2,6 +2,9 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using System.IO.Ports;
+using System.Collections.Generic;
+using System.Linq;
 using WPFTools;
 
 namespace EE595PcrController
@@ -10,10 +13,15 @@ namespace EE595PcrController
     {
         public PCRSchedule Schedule;
         public ScheduleSerializer Serializer;
+        public List<String> ComPortDevices;
+        public Boolean ComPortSelected;
+        public String ConnectButtonText;
+        public String ConnectStatusText;
         private RelayCommand _savePcrSchedule;
         private RelayCommand _savePcrScheduleAs;
         private RelayCommand _loadPcrSchedule;
         private RelayCommand _startStopExperiment;
+        private RelayCommand _connectToComPort;
 
         public PCRDevice Device;
         public ExperimentStatus Experiment;
@@ -27,9 +35,50 @@ namespace EE595PcrController
             _savePcrScheduleAs = new RelayCommand(param => Serializer.SaveScheduleAs(Schedule));
             _loadPcrSchedule = new RelayCommand(param => Serializer.LoadSchedule());
             _startStopExperiment = new RelayCommand(param => Device.StartStopExperiment(Experiment.ExperimentRunning));
+            _connectToComPort = new RelayCommand(param => Device.ConnectToDevice());
 
             Device = new PCRDevice();
+            Device.OnDeviceConnected += Device_OnDeviceConnected;
+            Device.OnDeviceDisconnected += Device_OnDeviceDisconnected;
+            Device.OnExperimentStarted += Device_OnExperimentStarted;
+            Device.OnExperimentTerminated += Device_OnExperimentTerminated;
             Experiment = new ExperimentStatus();
+            ComPortDevices = SerialPort.GetPortNames().ToList<String>();
+            ComPortSelected = false;
+            ConnectButtonText = "Connect";
+            ConnectionStatus = Device.ConnectionMessage;
+        }
+
+        private void Device_OnExperimentTerminated(object sender, EventArgs e)
+        {
+            Experiment.ExperimentRunning = false;
+            StartStopMessage = GetStartStopMessage();
+        }
+
+        private void Device_OnExperimentStarted(object sender, EventArgs e)
+        {
+            Experiment.ExperimentRunning = true;
+            StartStopMessage = GetStartStopMessage();
+        }
+
+        private void Device_OnDeviceDisconnected(object sender, EventArgs e)
+        {
+            if (sender is PCRDevice)
+            {
+                ConnectButtonMessage = "Connect";
+                ConnectionStatus = Device.ConnectionMessage;
+                DeviceOnline = false;
+            }
+        }
+
+        private void Device_OnDeviceConnected(object sender, EventArgs e)
+        {
+            if(sender is PCRDevice)
+            {
+                ConnectButtonMessage = "Disconnect";
+                ConnectionStatus = Device.ConnectionMessage;
+                DeviceOnline = true;
+            }
         }
 
         private void Serializer_OnNewScheduleLoaded(object sender, EventArgs e)
@@ -55,6 +104,58 @@ namespace EE595PcrController
                 throw new Exception();
             }
         }
+
+        #region Device Connection Binding Properties
+        public List<String> ComPortList
+        {
+            get { return ComPortDevices; }
+        }
+
+        public String SelectedDevice
+        {
+            get { return Device.DeviceName; }
+            set
+            {
+                if(value != Device.DeviceName)
+                {
+                    Device.DeviceName = value;
+
+                    if(SelectedDevice != String.Empty)
+                    {
+                        DeviceSelected = true;
+                    }
+
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public Boolean DeviceOnline
+        {
+            get { return Device.DeviceOnline; }
+            set
+            {
+                if (value != Device.DeviceOnline)
+                {
+                    Device.DeviceOnline = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public Boolean DeviceSelected
+        {
+            get { return ComPortSelected; }
+            set
+            {
+                if (value != ComPortSelected)
+                {
+                    ComPortSelected = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        #endregion
 
         #region Experiment Status Binding Properties
         public String CurrentStepName
@@ -104,7 +205,11 @@ namespace EE595PcrController
 
         public Int32 TargetTemperature => Device.ReferenceTemperature;
 
-        public String StartStopMessage => GetStartStopMessage();
+        public String StartStopMessage
+        {
+            get { return GetStartStopMessage(); }
+            set => NotifyPropertyChanged();
+        }
 
         public string GetStartStopMessage()
         {
@@ -122,32 +227,23 @@ namespace EE595PcrController
         #region Device Connection Binding Properties
         public String ConnectButtonMessage
         {
-            get
+            get{ return ConnectButtonText; }
+
+            set
             {
-                if (Device.DeviceOnline)
+                if (value != ConnectButtonText)
                 {
-                    return "Disconnect";
-                }
-                else
-                {
-                    return "Connect";
+                    ConnectButtonText = value;
+                    NotifyPropertyChanged();
                 }
             }
         }
 
         public String ConnectionStatus
         {
-            get
-            {
-                if (Device.DeviceOnline)
-                {
-                    return "Device connected";
-                }
-                else
-                {
-                    return "Device Offline";
-                }
-            }
+            get { return Device.ConnectionMessage; }
+
+            set => NotifyPropertyChanged();
         }
         #endregion
 
@@ -310,6 +406,16 @@ namespace EE595PcrController
         public ICommand LoadPcrSchedule
         {
             get { return _loadPcrSchedule; }
+        }
+
+        public ICommand ConnectToComPort
+        {
+            get { return _connectToComPort; }
+        }
+
+        public ICommand StartStopExperiment
+        {
+            get { return _startStopExperiment; }
         }
         #endregion
 
