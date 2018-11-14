@@ -123,19 +123,21 @@
                     <DockPanel>
                         <StackPanel Orientation="Vertical">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="COM Port" Margin="5,5,0,5"/>
+                                <TextBlock Text="COM Port Selection" Margin="5,5,0,5"/>
                                 <ComboBox ItemsSource="{Binding ComPortList}" SelectedItem="{Binding SelectedDevice}" IsEditable="True" Margin="5,5,0,5" MinWidth="200">
                                     <ComboBox.Effect>
                                         <DropShadowEffect/>
                                     </ComboBox.Effect>
                                 </ComboBox>
                             </StackPanel>
-                            <Button Content="{Binding ConnectButtonMessage}" IsEnabled="{Binding DeviceAvailable}" HorizontalAlignment="Center" Margin="5,5,0,5">
+                            <Button Command="{Binding ConnectToComPort}" Content="{Binding ConnectButtonMessage}"
+                                    IsEnabled="{Binding DeviceSelected, UpdateSourceTrigger=PropertyChanged}"
+                                    HorizontalAlignment="Center" Margin="5,5,0,5">
                                 <Button.Effect>
                                     <DropShadowEffect/>
                                 </Button.Effect>
                             </Button>
-                            <TextBlock Text="{Binding ConnectionStatus}"/>
+                            <TextBlock Text="{Binding ConnectionStatus, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                     </DockPanel>
                 </TabItem>
@@ -197,7 +199,8 @@
                             <DockPanel.Effect>
                                 <DropShadowEffect/>
                             </DockPanel.Effect>
-                            <Button Command="{Binding StartStopExperiment}" Margin="10,10,10,10">
+                            <Button Command="{Binding StartStopExperiment}" IsEnabled="{Binding DeviceOnline, UpdateSourceTrigger=PropertyChanged}"
+                                    Margin="10,10,10,10">
                                 <TextBlock Text="{Binding StartStopMessage , UpdateSourceTrigger=PropertyChanged}"/>
                             </Button>
                         </DockPanel>
